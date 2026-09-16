@@ -15,7 +15,27 @@
 
 <div class="dash-layout">
 
-  <aside class="dash-sidebar">
+  <div class="dash-mobile-bar">
+    <button class="dash-menu-toggle" id="sidebarToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="24" height="24" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>Admin Panel</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="dash-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <aside class="dash-sidebar" id="dashSidebar">
     <a href="../index.html" class="brand">
       <span class="brand-mark">
         <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
@@ -76,12 +96,14 @@
           <h2>Run Merit List</h2>
           <p class="dash-card-lead">Ranks verified applicants for a program by marks and allocates the top seats.</p>
 
+          <p class="auth-error" id="meritError"></p>
+
           <div class="merit-controls">
             <label>
               Program
               <select id="meritProgram">
-                <option>BSN &mdash; Generic Nursing</option>
-                <option>LHV &mdash; Lady Health Visitor</option>
+                <option value="BSN">BSN &mdash; Generic Nursing</option>
+                <option value="LHV">LHV &mdash; Lady Health Visitor</option>
               </select>
             </label>
             <label>
@@ -91,20 +113,7 @@
             <button class="btn btn-accent" id="runMeritBtn">Run Merit List</button>
           </div>
 
-          <div class="table-wrap">
-            <table class="admin-table" id="meritTable">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Name</th>
-                  <th>CNIC</th>
-                  <th>Matric %</th>
-                  <th>F.Sc %</th>
-                  <th>Result</th>
-                </tr>
-              </thead>
-              <tbody id="meritTableBody"></tbody>
-            </table>
+          <div class="table-wrap" id="meritResultsWrap">
             <div class="empty-state" id="meritEmpty">Run the merit list to see ranked results here.</div>
           </div>
         </div>
@@ -119,13 +128,44 @@
 <div class="modal-backdrop" id="detailModal">
   <div class="modal-box">
     <span class="modal-close" id="detailModalClose">&times;</span>
-    <h3>Application Details</h3>
+    <div class="summary-header" style="margin-bottom:20px;">
+      <img class="s-profile-pic" id="detailProfilePic" alt="Profile photo">
+      <h3 style="margin-bottom:0;">Application Details</h3>
+    </div>
     <div class="summary-grid" id="detailSummary"></div>
     <h3 style="margin:22px 0 12px; font-size:1.05rem;">Uploaded Documents</h3>
     <div class="upload-preview" id="detailDocs"></div>
+
+    <h3 style="margin:24px 0 12px; font-size:1.05rem;">Student Credentials</h3>
+    <div id="credentialsPanel">
+      <button type="button" class="btn btn-tiny btn-ghost-dark" id="viewCredentialsBtn">View Credentials</button>
+      <div id="credentialsBox" style="display:none; margin-top:12px; padding:12px; background:var(--surface-raised,#f5f5f5); border-radius:8px; font-size:0.92rem;"></div>
+    </div>
+
+    <h3 style="margin:24px 0 12px; font-size:1.05rem;">Update Status</h3>
+    <p class="auth-error" id="statusFormError"></p>
+    <form id="statusForm">
+      <label>
+        Status
+        <input type="text" id="statusInput" name="status" placeholder="e.g. verified, rejected, allocated" required>
+      </label>
+      <div class="status-quick-picks">
+        <button type="button" class="btn btn-tiny btn-ghost-dark" data-status="pending">pending</button>
+        <button type="button" class="btn btn-tiny btn-ghost-dark" data-status="verified">verified</button>
+        <button type="button" class="btn btn-tiny btn-ghost-dark" data-status="rejected">rejected</button>
+        <button type="button" class="btn btn-tiny btn-ghost-dark" data-status="allocated">allocated</button>
+        <button type="button" class="btn btn-tiny btn-ghost-dark" data-status="not_allocated">not_allocated</button>
+      </div>
+      <label>
+        Admin Note <span class="optional">(optional)</span>
+        <textarea id="adminNoteInput" name="admin_note" rows="2" placeholder="Internal note about this decision"></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary btn-block" id="statusSubmitBtn">Save Status</button>
+    </form>
   </div>
 </div>
 
+<script src="../js/config.js"></script>
 <script src="../js/store.js"></script>
 <script src="../js/admin-dashboard.js"></script>
 </body>

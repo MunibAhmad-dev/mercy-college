@@ -1,12 +1,13 @@
 const signupForm = document.getElementById('signupForm');
 const authError = document.getElementById('authError');
+const signupSubmitBtn = signupForm.querySelector('button[type="submit"]');
 
 function showError(message) {
   authError.textContent = message;
   authError.classList.add('visible');
 }
 
-signupForm.addEventListener('submit', (e) => {
+signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   authError.classList.remove('visible');
 
@@ -27,11 +28,15 @@ signupForm.addEventListener('submit', (e) => {
     return;
   }
 
+  signupSubmitBtn.disabled = true;
+  signupSubmitBtn.textContent = 'Creating Account...';
+
   try {
-    // TODO: replace with fetch('/api/auth/signup', { method:'POST', body: JSON.stringify({...}) })
-    Store.signUp({ name, cnic, phone, email, password });
+    await Store.signUp({ name, cnic, phone, email, password });
     window.location.href = 'dashboard.html';
   } catch (err) {
     showError(err.message);
+    signupSubmitBtn.disabled = false;
+    signupSubmitBtn.textContent = 'Create Account';
   }
 });

@@ -1,19 +1,24 @@
 const adminLoginForm = document.getElementById('adminLoginForm');
 const authError = document.getElementById('authError');
+const adminSubmitBtn = adminLoginForm.querySelector('button[type="submit"]');
 
-adminLoginForm.addEventListener('submit', (e) => {
+adminLoginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   authError.classList.remove('visible');
 
-  const username = adminLoginForm.username.value.trim();
+  const email = adminLoginForm.email.value.trim();
   const password = adminLoginForm.password.value;
 
+  adminSubmitBtn.disabled = true;
+  adminSubmitBtn.textContent = 'Signing In...';
+
   try {
-    // TODO: replace with fetch('/api/admin/login', { method:'POST', body: JSON.stringify({...}) })
-    Store.adminSignIn(username, password);
+    await Store.adminSignIn(email, password);
     window.location.href = 'dashboard.html';
   } catch (err) {
     authError.textContent = err.message;
     authError.classList.add('visible');
+    adminSubmitBtn.disabled = false;
+    adminSubmitBtn.textContent = 'Sign In';
   }
 });

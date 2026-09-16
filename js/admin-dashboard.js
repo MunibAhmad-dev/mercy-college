@@ -1,3 +1,8 @@
+const PROGRAM_LABELS = {
+  BSN: 'BSN — Generic Nursing',
+  LHV: 'LHV — Lady Health Visitor',
+};
+
 // Auth guard
 if (!Store.isAdminLoggedIn()) {
   window.location.href = 'login.html';
@@ -8,24 +13,35 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = 'login.html';
 });
 
-function getUserById(id) {
-  return Store.getUsers().find(u => u.id === id) || {};
-}
-
 function pct(marks) {
-  if (!marks) return '—';
-  return marks;
+  return (marks === null || marks === undefined || marks === '') ? '—' : marks;
 }
 
 function statusBadgeMarkup(app) {
-  if (app.status === 'Merit Result Declared') {
-    return app.allocation === 'Allocated'
-      ? '<span class="status-badge allocated">Allocated</span>'
-      : '<span class="status-badge not-allocated">Not Allocated</span>';
-  }
-  if (app.verified) return '<span class="status-badge verified">Verified</span>';
-  return '<span class="status-badge submitted">Submitted</span>';
+  const s = (app.status || '').toLowerCase();
+  let cls = 'submitted';
+  if (s.includes('reject') || (s.includes('not') && s.includes('allocat'))) cls = 'not-allocated';
+  else if (s.includes('allocat')) cls = 'allocated';
+  else if (s.includes('verif')) cls = 'verified';
+  const label = app.status ? app.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Pending';
+  return `<span class="status-badge ${cls}">${label}</span>`;
 }
+
+// ===================== Mobile sidebar toggle =====================
+const dashSidebar = document.getElementById('dashSidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+function closeSidebar() {
+  dashSidebar.classList.remove('open');
+  sidebarBackdrop.classList.remove('open');
+}
+if (sidebarToggle) {
+  sidebarToggle.addEventListener('click', () => {
+    dashSidebar.classList.toggle('open');
+    sidebarBackdrop.classList.toggle('open');
+  });
+}
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
 
 // ===================== Sidebar navigation =====================
 const navLinks = document.querySelectorAll('.dash-nav-link');
@@ -37,157 +53,233 @@ navLinks.forEach(link => {
     link.classList.add('active');
     document.getElementById('view-' + link.dataset.view).classList.add('active');
     if (link.dataset.view === 'applications') renderApplications();
+    closeSidebar();
   });
 });
 
 // ===================== Applications table =====================
-function renderStats(apps) {
-  const stats = [
-    { label: 'Total', value: apps.length },
-    { label: 'Submitted', value: apps.filter(a => !a.verified).length },
-    { label: 'Verified', value: apps.filter(a => a.verified).length },
-    { label: 'Merit Declared', value: apps.filter(a => a.status === 'Merit Result Declared').length },
-  ];
-  document.getElementById('adminStats').innerHTML = stats.map(s => `
-    <div class="admin-stat"><strong>${s.value}</strong><span>${s.label}</span></div>
-  `).join('');
+let currentApplications = [];
+
+function renderStats(stats, fallbackCount) {
+  const wrap = document.getElementById('adminStats');
+  if (stats && typeof stats === 'object') {
+    wrap.innerHTML = Object.entries(stats).map(([label, value]) => `
+      <div class="admin-stat"><strong>${value}</strong><span>${label.replace(/_/g, ' ')}</span></div>
+    `).join('');
+  } else {
+    wrap.innerHTML = `<div class="admin-stat"><strong>${fallbackCount}</strong><span>Total</span></div>`;
+  }
 }
 
-function renderApplications() {
-  const apps = Store.getApplications();
-  renderStats(apps);
-
+async function renderApplications() {
   const tbody = document.getElementById('applicationsTableBody');
   const emptyEl = document.getElementById('applicationsEmpty');
 
-  if (apps.length === 0) {
+  try {
+    const [stats, apps] = await Promise.all([
+      Store.adminGetStats().catch(() => null),
+      Store.adminGetApplications(),
+    ]);
+    currentApplications = Array.isArray(apps) ? apps : (apps && apps.applications) || [];
+    renderStats(stats, currentApplications.length);
+  } catch (err) {
     tbody.innerHTML = '';
     emptyEl.style.display = 'block';
+    emptyEl.textContent = `Could not load applications: ${err.message}`;
+    return;
+  }
+
+  if (currentApplications.length === 0) {
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = 'No applications submitted yet.';
     return;
   }
   emptyEl.style.display = 'none';
 
-  tbody.innerHTML = apps.map(app => {
-    const user = getUserById(app.userId);
-    return `
-      <tr>
-        <td>${user.name || '—'}</td>
-        <td>${app.cnic || '—'}</td>
-        <td>${app.program || '—'}</td>
-        <td>${pct(app.marksMatric)}</td>
-        <td>${pct(app.marksFsc)}</td>
-        <td>${statusBadgeMarkup(app)}</td>
-        <td>${new Date(app.submittedAt).toLocaleDateString()}</td>
-        <td>
-          <button class="btn btn-tiny btn-ghost-dark" data-view="${app.id}">View</button>
-          <button class="btn btn-tiny ${app.verified ? 'btn-ghost-dark' : 'btn-primary'}" data-verify="${app.id}">${app.verified ? 'Unverify' : 'Verify'}</button>
-          <button class="btn btn-tiny btn-accent" data-delete="${app.id}">Delete</button>
-        </td>
-      </tr>`;
-  }).join('');
+  tbody.innerHTML = currentApplications.map(app => `
+    <tr>
+      <td>${app.user?.name || app.father_name || '—'}</td>
+      <td>${app.user?.cnic || '—'}</td>
+      <td>${PROGRAM_LABELS[app.program] || app.program || '—'}</td>
+      <td>${pct(app.marks_matric)}</td>
+      <td>${pct(app.marks_fsc)}</td>
+      <td>${statusBadgeMarkup(app)}</td>
+      <td>${app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : '—'}</td>
+      <td><button class="btn btn-tiny btn-primary" data-view-id="${app.id}">View / Manage</button></td>
+    </tr>`).join('');
 
-  tbody.querySelectorAll('[data-view]').forEach(btn => {
-    btn.addEventListener('click', () => openDetailModal(btn.dataset.view));
-  });
-  tbody.querySelectorAll('[data-verify]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const app = Store.getApplications().find(a => a.id === btn.dataset.verify);
-      Store.verifyApplication(btn.dataset.verify, !app.verified);
-      renderApplications();
-    });
-  });
-  tbody.querySelectorAll('[data-delete]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (confirm('Delete this application? This cannot be undone.')) {
-        Store.deleteApplication(btn.dataset.delete);
-        renderApplications();
-      }
-    });
+  tbody.querySelectorAll('[data-view-id]').forEach(btn => {
+    btn.addEventListener('click', () => openDetailModal(btn.dataset.viewId));
   });
 }
 
 // ===================== Detail modal =====================
 const detailModal = document.getElementById('detailModal');
+let activeApplicationId = null;
 
-function openDetailModal(appId) {
-  const app = Store.getApplications().find(a => a.id === appId);
+async function openDetailModal(appId) {
+  activeApplicationId = appId;
+  document.getElementById('detailSummary').innerHTML = '<div class="summary-item"><span>Loading...</span></div>';
+  document.getElementById('detailDocs').innerHTML = '';
+  document.getElementById('detailProfilePic').removeAttribute('src');
+  document.getElementById('statusFormError').classList.remove('visible');
+  detailModal.classList.add('open');
+
+  let app;
+  try {
+    app = await Store.adminGetApplication(appId);
+  } catch (err) {
+    document.getElementById('detailSummary').innerHTML = `<p class="auth-error visible">Could not load this application: ${err.message}</p>`;
+    return;
+  }
   if (!app) return;
-  const user = getUserById(app.userId);
 
   const rows = [
-    ['Full Name', user.name], ["Father's/Guardian's Name", app.father],
-    ['CNIC / B-Form', app.cnic], ['Date of Birth', app.dob],
-    ['Gender', app.gender], ['Phone', user.phone],
-    ['Email', user.email], ['Program of Interest', app.program],
-    ['Previous Qualification', app.qualification], ['Matric Marks', app.marksMatric],
-    ['F.Sc Marks', app.marksFsc || '—'], ['Address', app.address],
+    ['Full Name', app.user?.name], ["Father's/Guardian's Name", app.father_name],
+    ['CNIC / Form-B Number', app.cnic_number], ['Account CNIC', app.user?.cnic],
+    ['Date of Birth', app.dob], ['Gender', app.gender],
+    ['Phone', app.user?.phone], ['Email', app.user?.email],
+    ['Program of Interest', PROGRAM_LABELS[app.program] || app.program],
+    ['Previous Qualification', app.qualification], ['Matric Marks', app.marks_matric],
+    ['F.Sc Marks', app.marks_fsc ?? '—'], ['Address', app.address],
   ];
   document.getElementById('detailSummary').innerHTML = rows.map(([label, value]) => `
     <div class="summary-item"><span>${label}</span><strong>${value || '—'}</strong></div>
   `).join('');
 
-  const docsWrap = document.getElementById('detailDocs');
-  docsWrap.innerHTML = '';
-  const docGroups = app.documents || {};
-  Object.values(docGroups).flat().forEach(doc => {
-    if (!doc) return;
-    if (doc.type && doc.type.startsWith('image/')) {
-      const img = document.createElement('img');
-      img.src = doc.dataUrl;
-      img.alt = doc.name;
-      img.title = doc.name;
-      docsWrap.appendChild(img);
-    } else {
-      const chip = document.createElement('span');
-      chip.className = 'file-chip';
-      chip.textContent = doc.name;
-      docsWrap.appendChild(chip);
-    }
-  });
-  if (!docsWrap.children.length) {
-    docsWrap.innerHTML = '<span class="file-chip">No documents uploaded</span>';
+  if (app.profile_picture) {
+    Store.adminGetFileUrl(app.profile_picture).then(res => {
+      if (res) document.getElementById('detailProfilePic').src = res.url;
+    });
   }
 
-  detailModal.classList.add('open');
+  const docsWrap = document.getElementById('detailDocs');
+  const docEntries = [
+    ...(app.cnic_front ? [{ label: 'CNIC Front', filename: app.cnic_front }] : []),
+    ...(app.cnic_back ? [{ label: 'CNIC Back', filename: app.cnic_back }] : []),
+    ...(app.domicile_doc ? [{ label: 'Domicile', filename: app.domicile_doc }] : []),
+    ...Store.parseFilenameList(app.matric_docs).map(f => ({ label: 'Matric', filename: f })),
+    ...Store.parseFilenameList(app.fsc_docs).map(f => ({ label: 'F.Sc', filename: f })),
+    ...(app.kmu_cat_doc ? [{ label: 'KMU CAT', filename: app.kmu_cat_doc }] : []),
+  ];
+  if (docEntries.length === 0) {
+    docsWrap.innerHTML = '<span class="file-chip">No documents uploaded</span>';
+  }
+  docEntries.forEach(({ label, filename }) => {
+    Store.adminGetFileUrl(filename).then(res => {
+      if (!res) return;
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px;vertical-align:top;';
+      if (res.isImage) {
+        const img = document.createElement('img');
+        img.src = res.url;
+        img.alt = label;
+        img.title = label;
+        img.style.cssText = 'max-width:120px;max-height:120px;border-radius:6px;border:1px solid #ddd;cursor:pointer;';
+        img.addEventListener('click', () => window.open(res.url, '_blank'));
+        wrap.appendChild(img);
+      }
+      const btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:4px;';
+      const viewBtn = document.createElement('a');
+      viewBtn.href = res.url;
+      viewBtn.target = '_blank';
+      viewBtn.rel = 'noopener';
+      viewBtn.className = 'btn btn-tiny btn-ghost-dark';
+      viewBtn.textContent = label;
+      btnRow.appendChild(viewBtn);
+      // Download via re-fetch with download flag
+      const dlBtn = document.createElement('button');
+      dlBtn.type = 'button';
+      dlBtn.className = 'btn btn-tiny btn-ghost-dark';
+      dlBtn.textContent = '⬇';
+      dlBtn.title = `Download ${label}`;
+      dlBtn.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = res.url;
+        a.download = filename;
+        a.click();
+      });
+      btnRow.appendChild(dlBtn);
+      wrap.appendChild(btnRow);
+      docsWrap.appendChild(wrap);
+    });
+  });
+
+  document.getElementById('statusInput').value = app.status || '';
+  document.getElementById('adminNoteInput').value = app.admin_note || '';
 }
 
 document.getElementById('detailModalClose').addEventListener('click', () => detailModal.classList.remove('open'));
 detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.remove('open'); });
 
+document.querySelectorAll('.status-quick-picks [data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('statusInput').value = btn.dataset.status;
+  });
+});
+
+document.getElementById('statusForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('statusFormError');
+  errorEl.classList.remove('visible');
+  const submitBtn = document.getElementById('statusSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving...';
+
+  try {
+    const status = document.getElementById('statusInput').value.trim();
+    const note = document.getElementById('adminNoteInput').value.trim();
+    await Store.adminUpdateStatus(activeApplicationId, status, note);
+    detailModal.classList.remove('open');
+    await renderApplications();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.add('visible');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Save Status';
+  }
+});
+
 // ===================== Merit list =====================
-document.getElementById('runMeritBtn').addEventListener('click', () => {
+document.getElementById('runMeritBtn').addEventListener('click', async () => {
   const program = document.getElementById('meritProgram').value;
   const seats = parseInt(document.getElementById('meritSeats').value, 10) || 0;
+  const wrap = document.getElementById('meritResultsWrap');
+  const errorEl = document.getElementById('meritError');
+  errorEl.classList.remove('visible');
+  wrap.innerHTML = '<div class="empty-state">Loading merit list...</div>';
 
-  // TODO: replace with fetch('/api/admin/merit', { method:'POST', body: JSON.stringify({program, seats}) })
-  const ranked = Store.runMerit(program, seats);
+  try {
+    const result = await Store.adminGetMeritList(program, seats);
+    const list = Array.isArray(result) ? result : (result && (result.list || result.applications)) || null;
 
-  const tbody = document.getElementById('meritTableBody');
-  const emptyEl = document.getElementById('meritEmpty');
+    if (!list || list.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">No verified applicants found for this program yet.</div>';
+      return;
+    }
 
-  if (ranked.length === 0) {
-    tbody.innerHTML = '';
-    emptyEl.style.display = 'block';
-    emptyEl.textContent = 'No verified applicants found for this program yet.';
-    return;
+    // Build table columns dynamically from whatever fields the API returns.
+    const preferredOrder = ['rank', 'merit_rank', 'name', 'cnic', 'marks_matric', 'marks_fsc', 'program', 'status', 'allocation'];
+    const keys = Object.keys(list[0]);
+    keys.sort((a, b) => {
+      const ai = preferredOrder.indexOf(a), bi = preferredOrder.indexOf(b);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+
+    const thead = `<tr>${keys.map(k => `<th>${k.replace(/_/g, ' ')}</th>`).join('')}</tr>`;
+    const tbody = list.map(row => `<tr>${keys.map(k => `<td>${row[k] ?? '—'}</td>`).join('')}</tr>`).join('');
+    wrap.innerHTML = `<table class="admin-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+  } catch (err) {
+    wrap.innerHTML = '';
+    errorEl.textContent = `Could not load the merit list: ${err.message}`;
+    errorEl.classList.add('visible');
   }
-  emptyEl.style.display = 'none';
-
-  tbody.innerHTML = ranked.map(app => {
-    const user = getUserById(app.userId);
-    const full = Store.getApplications().find(a => a.id === app.id);
-    return `
-      <tr>
-        <td>#${full.meritRank}</td>
-        <td>${user.name || '—'}</td>
-        <td>${app.cnic || '—'}</td>
-        <td>${pct(app.marksMatric)}</td>
-        <td>${pct(app.marksFsc)}</td>
-        <td>${statusBadgeMarkup(full)}</td>
-      </tr>`;
-  }).join('');
-
-  renderApplications();
 });
 
 renderApplications();

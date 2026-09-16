@@ -15,7 +15,27 @@
 
 <div class="dash-layout">
 
-  <aside class="dash-sidebar">
+  <div class="dash-mobile-bar">
+    <button class="dash-menu-toggle" id="sidebarToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="24" height="24" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>Student Portal</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="dash-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <aside class="dash-sidebar" id="dashSidebar">
     <a href="index.html" class="brand">
       <span class="brand-mark">
         <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
@@ -91,19 +111,45 @@
     <p class="auth-error" id="appFormError"></p>
 
     <form id="applicationForm">
+      <div class="profile-upload">
+        <label class="profile-upload-avatar" for="profilePictureInput" id="profileAvatarPreview">
+          <span class="profile-upload-placeholder">📷</span>
+        </label>
+        <div class="profile-upload-info">
+          <span class="profile-upload-title">Profile Picture</span>
+          <p class="profile-upload-hint">Upload a recent passport-size photo (JPG or PNG).</p>
+          <label class="btn btn-tiny btn-ghost-dark profile-upload-btn" for="profilePictureInput">Choose Photo</label>
+          <input type="file" id="profilePictureInput" name="profilePicture" accept="image/*" hidden>
+        </div>
+      </div>
+
       <div class="form-grid">
         <label>
           Father's / Guardian's Name
           <input type="text" name="father" placeholder="Father's full name" required>
         </label>
-        <label>
-          CNIC / B-Form Number
-          <input type="text" name="cnic" placeholder="XXXXX-XXXXXXX-X" required>
-        </label>
-        <label>
-          Date of Birth
-          <input type="date" name="dob" required>
-        </label>
+        <div class="field-block">
+          <span class="field-label">Date of Birth</span>
+          <div class="date-picker" data-datepicker>
+            <button type="button" class="date-picker-trigger">
+              <span class="date-picker-value">Select date of birth</span>
+              <span class="date-picker-icon">📅</span>
+            </button>
+            <input type="hidden" name="dob">
+            <div class="date-picker-panel" hidden>
+              <div class="date-picker-header">
+                <button type="button" class="dp-nav dp-prev" aria-label="Previous month">&lsaquo;</button>
+                <select class="dp-month"></select>
+                <select class="dp-year"></select>
+                <button type="button" class="dp-nav dp-next" aria-label="Next month">&rsaquo;</button>
+              </div>
+              <div class="date-picker-weekdays">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+              </div>
+              <div class="date-picker-days"></div>
+            </div>
+          </div>
+        </div>
         <label>
           Gender
           <select name="gender" required>
@@ -128,17 +174,17 @@
           Program of Interest
           <select name="program" required>
             <option value="" disabled selected>Select a program</option>
-            <option>BSN &mdash; Generic Nursing</option>
-            <option>LHV &mdash; Lady Health Visitor</option>
+            <option value="BSN">BSN &mdash; Generic Nursing</option>
+            <option value="LHV">LHV &mdash; Lady Health Visitor</option>
           </select>
         </label>
         <label>
           Matric Marks / Percentage
-          <input type="text" name="marksMatric" placeholder="e.g. 78% or 850/1100" required>
+          <input type="text" name="marksMatric" placeholder="e.g. 78" required>
         </label>
         <label>
           F.Sc Marks / Percentage <span class="optional">(if applicable)</span>
-          <input type="text" name="marksFsc" placeholder="e.g. 82% or 940/1100">
+          <input type="text" name="marksFsc" placeholder="e.g. 82">
         </label>
         <label class="span-2">
           Complete Address
@@ -149,29 +195,41 @@
       <h3 style="margin:26px 0 16px; font-size:1.1rem;">Required Documents</h3>
       <div class="upload-grid">
         <div class="upload-field">
-          <label>CNIC / Form B (scan or photo)
-            <input type="file" name="cnicFormB" accept="image/*,.pdf" required>
+          <label>CNIC / Form-B Number
+            <input type="text" name="cnicNumber" placeholder="e.g. 35202-1234567-1" required>
           </label>
+          <label>CNIC / Form-B — Front Photo
+            <input type="file" name="cnicFront" accept="image/*,.pdf" required>
+          </label>
+          <div class="upload-preview" data-preview-for="cnicFront"></div>
+          <label>CNIC / Form-B — Back Photo
+            <input type="file" name="cnicBack" accept="image/*,.pdf" required>
+          </label>
+          <div class="upload-preview" data-preview-for="cnicBack"></div>
         </div>
         <div class="upload-field">
           <label>Domicile Certificate
             <input type="file" name="domicile" accept="image/*,.pdf" required>
           </label>
+          <div class="upload-preview" data-preview-for="domicile"></div>
         </div>
         <div class="upload-field">
           <label>Matric DMC + Certificate
             <input type="file" name="matricDocs" accept="image/*,.pdf" multiple required>
           </label>
+          <div class="upload-preview" data-preview-for="matricDocs"></div>
         </div>
         <div class="upload-field">
           <label>F.Sc DMC + Certificate <span class="optional">(if applicable)</span>
             <input type="file" name="fscDocs" accept="image/*,.pdf" multiple>
           </label>
+          <div class="upload-preview" data-preview-for="fscDocs"></div>
         </div>
         <div class="upload-field span-2">
           <label>KMU CAT Result
             <input type="file" name="kmuCat" accept="image/*,.pdf" required>
           </label>
+          <div class="upload-preview" data-preview-for="kmuCat"></div>
         </div>
       </div>
 
@@ -184,13 +242,18 @@
 <!-- ===================== Read-only Summary Template ===================== -->
 <template id="applicationSummaryTemplate">
   <div class="dash-card">
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-      <h2 style="margin-bottom:0;">My Application</h2>
-      <span class="status-badge"></span>
+    <div class="summary-header">
+      <img class="s-profile-pic" alt="Profile photo">
+      <div class="summary-header-text">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <h2 style="margin-bottom:0;">My Application</h2>
+          <span class="status-badge"></span>
+        </div>
+        <p class="dash-card-lead" style="margin-bottom:0;">Submitted on <span class="submitted-date"></span>. Contact the admissions office if any detail needs correction.</p>
+      </div>
     </div>
-    <p class="dash-card-lead">Submitted on <span class="submitted-date"></span>. Contact the admissions office if any detail needs correction.</p>
 
-    <div class="summary-grid">
+    <div class="summary-grid" style="margin-top:26px;">
       <div class="summary-item"><span>Full Name</span><strong class="s-name"></strong></div>
       <div class="summary-item"><span>Father's / Guardian's Name</span><strong class="s-father"></strong></div>
       <div class="summary-item"><span>CNIC / B-Form</span><strong class="s-cnic"></strong></div>
@@ -210,7 +273,9 @@
   </div>
 </template>
 
+<script src="js/config.js"></script>
 <script src="js/store.js"></script>
+<script src="js/datepicker.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

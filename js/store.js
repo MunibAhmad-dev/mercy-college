@@ -1,171 +1,207 @@
 /**
- * DEMO DATA LAYER -- browser localStorage only.
+ * Live data layer -- talks to the real Mercy College backend at API_BASE
+ * (see js/config.js). Every method returns a Promise; callers must await it.
  *
- * This simulates the student accounts / applications / merit workflow so the
- * frontend can be built and clicked through end-to-end before the real
- * Express + database backend exists. It is NOT secure (passwords are stored
- * in plain text in the browser) and is NOT shared between devices/users.
- *
- * To go live: replace the body of each Store method below with a fetch()
- * call to your real Express API (e.g. POST /api/auth/signup,
- * POST /api/auth/signin, POST /api/applications, GET /api/admin/applications,
- * POST /api/admin/applications/:id/verify, POST /api/admin/merit). Keep the
- * method names/signatures the same and every page that calls Store.* keeps
- * working unchanged.
+ * Response shapes below were confirmed by hand against the live API:
+ *   POST /auth/register, /auth/login  -> { success, token, user }
+ *   GET  /student/me                  -> { success, data: user }
+ *   GET  /student/application         -> { success, data: application|null }
+ *   POST /student/application         -> { success, data: application }
+ *   POST /student/profile-picture     -> { success, filename, url }
+ *   GET  /uploads/:filename           -> raw file bytes (requires Bearer auth)
+ * Admin GET endpoints (/admin/stats, /admin/applications, /admin/merit-list)
+ * were not reachable without admin credentials, so they're assumed to follow
+ * the same { success, data } convention every other endpoint uses. If any
+ * admin call below throws about an unexpected shape, that's the place to fix.
  */
 
-const DB_KEYS = {
-  USERS: 'mcn_users',
-  SESSION: 'mcn_session',
-  APPLICATIONS: 'mcn_applications',
-  ADMIN_SESSION: 'mcn_admin_session',
-};
+async function apiRequest(path, { method = 'GET', body, token, isForm = false, query } = {}) {
+  let url = API(path);
+  if (query) {
+    const clean = Object.entries(query).filter(([, v]) => v !== undefined && v !== null && v !== '');
+    const qs = new URLSearchParams(clean).toString();
+    if (qs) url += `?${qs}`;
+  }
 
-function readJSON(key, fallback) {
+  const headers = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body && !isForm) headers['Content-Type'] = 'application/json';
+
+  let res;
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    res = await fetch(url, {
+      method,
+      headers,
+      body: isForm ? body : (body ? JSON.stringify(body) : undefined),
+    });
+  } catch (err) {
+    throw new Error('Could not reach the server. Please check your internet connection and try again.');
+  }
+
+  let json = null;
+  try { json = await res.json(); } catch (e) { /* non-JSON response */ }
+
+  if (!res.ok || (json && json.success === false)) {
+    const message = (json && (json.error || json.message)) || `Request failed (${res.status})`;
+    throw new Error(message);
+  }
+  return json || {};
+}
+
+// Uploaded files require a Bearer token, so <img src="..."> can't be used
+// directly -- fetch the bytes ourselves and hand back an object URL plus
+// whether it's an image (vs. a PDF, which should be linked, not <img>'d).
+async function fetchProtectedFile(filename, token) {
+  if (!filename || !token) return null;
+  try {
+    const res = await fetch(API(`/uploads/${encodeURIComponent(filename)}`), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return { url: URL.createObjectURL(blob), isImage: blob.type.startsWith('image/'), filename };
   } catch (e) {
-    return fallback;
+    return null;
   }
 }
 
-function writeJSON(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+// The backend stores multi-file fields (matric_docs, fsc_docs) as a JSON
+// string, e.g. '["a.jpg","b.jpg"]'. Normalize to a plain array of filenames.
+function parseFilenameList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [value];
+  } catch (e) {
+    return [value];
+  }
 }
 
 const Store = {
   // ===================== Student auth =====================
-  getUsers() {
-    return readJSON(DB_KEYS.USERS, []);
+  async signUp({ name, cnic, phone, email, password }) {
+    const json = await apiRequest('/auth/register', { method: 'POST', body: { name, cnic, phone, email, password } });
+    setToken(json.token);
+    return json.user;
   },
 
-  findUserByEmail(email) {
-    return this.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+  async signIn(email, password) {
+    const json = await apiRequest('/auth/login', { method: 'POST', body: { email, password } });
+    setToken(json.token);
+    return json.user;
   },
 
-  signUp({ name, cnic, email, phone, password }) {
-    if (this.findUserByEmail(email)) {
-      throw new Error('An account with this email already exists. Please sign in instead.');
-    }
-    const users = this.getUsers();
-    const user = { id: 'u_' + Date.now(), name, cnic, email, phone, password };
-    users.push(user);
-    writeJSON(DB_KEYS.USERS, users);
-    this.setSession(user.id);
-    return user;
-  },
-
-  signIn(email, password) {
-    const user = this.findUserByEmail(email);
-    if (!user || user.password !== password) {
-      throw new Error('Incorrect email or password.');
-    }
-    this.setSession(user.id);
-    return user;
-  },
-
-  setSession(userId) {
-    writeJSON(DB_KEYS.SESSION, { userId });
-  },
-
-  getSession() {
-    return readJSON(DB_KEYS.SESSION, null);
-  },
-
-  getCurrentUser() {
-    const session = this.getSession();
-    if (!session) return null;
-    return this.getUsers().find(u => u.id === session.userId) || null;
+  isSignedIn() {
+    return !!getToken();
   },
 
   signOut() {
-    localStorage.removeItem(DB_KEYS.SESSION);
+    clearToken();
   },
 
-  // ===================== Applications =====================
-  getApplications() {
-    return readJSON(DB_KEYS.APPLICATIONS, []);
+  async getCurrentUser() {
+    const token = getToken();
+    if (!token) return null;
+    try {
+      const json = await apiRequest('/student/me', { token });
+      return json.data;
+    } catch (e) {
+      // Token missing/expired/invalid -- treat as signed out.
+      clearToken();
+      return null;
+    }
   },
 
-  getApplicationByUser(userId) {
-    return this.getApplications().find(a => a.userId === userId) || null;
+  // ===================== Application =====================
+  async getApplication() {
+    const json = await apiRequest('/student/application', { token: getToken() });
+    return json.data || null;
   },
 
-  submitApplication(userId, fields) {
-    const apps = this.getApplications();
-    const idx = apps.findIndex(a => a.userId === userId);
-    const record = {
-      id: idx > -1 ? apps[idx].id : 'app_' + Date.now(),
-      userId,
-      ...fields,
-      status: 'Submitted',
-      verified: false,
-      allocation: null,
-      meritRank: null,
-      submittedAt: new Date().toISOString(),
-    };
-    if (idx > -1) apps[idx] = record; else apps.push(record);
-    writeJSON(DB_KEYS.APPLICATIONS, apps);
-    return record;
+  // file: a single File object from <input type="file">
+  async uploadProfilePicture(file) {
+    const fd = new FormData();
+    fd.append('profilePicture', file);
+    return apiRequest('/student/profile-picture', { method: 'POST', body: fd, isForm: true, token: getToken() });
+  },
+
+  // fields: { father, dob, gender, qualification, program, marksMatric, marksFsc, address, cnicNumber }
+  // files: { profilePicture:[File], cnicFront:[File], cnicBack:[File], domicile:[File], matricDocs:[File,...], fscDocs:[File,...], kmuCat:[File] }
+  async submitApplication(fields, files) {
+    const fd = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) fd.append(key, value);
+    });
+    Object.entries(files).forEach(([key, fileList]) => {
+      (fileList || []).forEach(file => fd.append(key, file));
+    });
+    const json = await apiRequest('/student/application', { method: 'POST', body: fd, isForm: true, token: getToken() });
+    return json.data;
+  },
+
+  parseFilenameList,
+
+  getFileUrl(filename) {
+    return fetchProtectedFile(filename, getToken());
   },
 
   // ===================== Admin =====================
-  // DEMO credentials only -- replace with real server-side auth before launch.
-  ADMIN_CREDENTIALS: { username: 'admin', password: 'admin123' },
-
-  adminSignIn(username, password) {
-    if (username !== this.ADMIN_CREDENTIALS.username || password !== this.ADMIN_CREDENTIALS.password) {
-      throw new Error('Invalid admin username or password.');
-    }
-    writeJSON(DB_KEYS.ADMIN_SESSION, { loggedIn: true, at: Date.now() });
+  async adminSignIn(email, password) {
+    const json = await apiRequest('/auth/admin-login', { method: 'POST', body: { email, password } });
+    setAdminToken(json.token);
+    return json.user || json.admin || null;
   },
 
   isAdminLoggedIn() {
-    return !!readJSON(DB_KEYS.ADMIN_SESSION, null);
+    return !!getAdminToken();
   },
 
   adminSignOut() {
-    localStorage.removeItem(DB_KEYS.ADMIN_SESSION);
+    clearAdminToken();
   },
 
-  verifyApplication(id, verified) {
-    const apps = this.getApplications();
-    const app = apps.find(a => a.id === id);
-    if (app) {
-      app.verified = verified;
-      if (app.status === 'Submitted' || app.status === 'Verified') {
-        app.status = verified ? 'Verified' : 'Submitted';
-      }
-      writeJSON(DB_KEYS.APPLICATIONS, apps);
-    }
-    return app;
+  async adminGetStats() {
+    const json = await apiRequest('/admin/stats', { token: getAdminToken() });
+    return json.data;
   },
 
-  deleteApplication(id) {
-    writeJSON(DB_KEYS.APPLICATIONS, this.getApplications().filter(a => a.id !== id));
+  // filters: { status, program, search, limit, offset }
+  async adminGetApplications(filters = {}) {
+    const json = await apiRequest('/admin/applications', { token: getAdminToken(), query: filters });
+    return json.data;
   },
 
-  // Ranks verified applicants for a program by marks (highest first) and
-  // marks the top `seats` as Allocated, the rest as Not Allocated.
-  runMerit(program, seats) {
-    const all = this.getApplications();
-    const parseMarks = a => {
-      const m = String(a.marksFsc || a.marksMatric || '').match(/[\d.]+/);
-      return m ? parseFloat(m[0]) : 0;
-    };
-    const pool = all
-      .filter(a => a.program === program && a.verified)
-      .sort((a, b) => parseMarks(b) - parseMarks(a));
+  async adminGetApplication(id) {
+    const json = await apiRequest(`/admin/applications/${id}`, { token: getAdminToken() });
+    return json.data;
+  },
 
-    pool.forEach((a, i) => {
-      const target = all.find(x => x.id === a.id);
-      target.meritRank = i + 1;
-      target.allocation = i < seats ? 'Allocated' : 'Not Allocated';
-      target.status = 'Merit Result Declared';
+  async adminUpdateStatus(id, status, admin_note) {
+    const json = await apiRequest(`/admin/applications/${id}/status`, {
+      method: 'PUT',
+      body: { status, admin_note },
+      token: getAdminToken(),
     });
+    return json.data;
+  },
 
-    writeJSON(DB_KEYS.APPLICATIONS, all);
-    return pool;
+  async adminGetStatusHistory(id) {
+    const json = await apiRequest(`/admin/applications/${id}/status-history`, { token: getAdminToken() });
+    return json.data;
+  },
+
+  async adminGetCredentials(userId) {
+    const json = await apiRequest(`/admin/students/${userId}/credentials`, { token: getAdminToken() });
+    return json.data;
+  },
+
+  async adminGetMeritList(program, seats) {
+    const json = await apiRequest('/admin/merit-list', { token: getAdminToken(), query: { program, seats } });
+    return json.data;
+  },
+
+  adminGetFileUrl(filename) {
+    return fetchProtectedFile(filename, getAdminToken());
   },
 };
