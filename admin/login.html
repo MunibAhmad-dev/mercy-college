@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Sign In &mdash; Mercy College of Nursing</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+</head>
+<body class="auth-body">
+
+<div class="auth-split">
+  <div class="auth-side">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="30" height="30" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>Admin Panel</small>
+      </span>
+    </a>
+
+    <div class="auth-side-content">
+      <h2>Review applications &amp; run merit lists</h2>
+      <ul class="auth-side-points">
+        <li>✔ Verify student documents</li>
+        <li>✔ Track every application in one place</li>
+        <li>✔ Run merit lists &amp; allocate seats</li>
+      </ul>
+    </div>
+
+    <a href="../index.html" class="auth-side-back">&larr; Back to website</a>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>Admin Sign In</h1>
+      <p class="auth-lead">Restricted to Mercy College admissions staff.</p>
+
+      <p class="auth-error" id="authError"></p>
+
+      <form id="adminLoginForm">
+        <label>
+          Username
+          <input type="text" name="username" placeholder="Username" required autocomplete="username">
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+
+      <p class="auth-switch">Demo credentials: <strong>admin</strong> / <strong>admin123</strong> &mdash; change these once your real backend is connected.</p>
+    </div>
+  </div>
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/admin-login.js"></script>
+</body>
+</html>

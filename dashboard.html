@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard &mdash; Mercy College of Nursing</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+</head>
+<body class="dash-body">
+
+<div class="dash-layout">
+
+  <aside class="dash-sidebar">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>Student Portal</small>
+      </span>
+    </a>
+
+    <nav class="dash-nav">
+      <button class="dash-nav-link active" data-view="overview"><span class="nav-icon">📊</span> Overview</button>
+      <button class="dash-nav-link" data-view="application"><span class="nav-icon">📝</span> My Application</button>
+      <button class="dash-nav-link" data-view="account"><span class="nav-icon">👤</span> Account</button>
+    </nav>
+
+    <div class="dash-sidebar-footer">
+      <div class="dash-user-mini">
+        <strong id="userName">Student</strong>
+        <span id="userEmailMini"></span>
+      </div>
+      <button class="btn btn-tiny btn-ghost-dark btn-block" id="logoutBtn" style="background:#fff;">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="dash-content">
+    <div class="container">
+
+      <!-- ===================== Overview ===================== -->
+      <div class="dash-view active" id="view-overview">
+        <div id="allocationBanner"></div>
+        <div class="dash-card">
+          <h2>Application Status</h2>
+          <p class="dash-card-lead">Track where your application is in the admission process.</p>
+          <div class="status-stepper" id="statusStepper"></div>
+        </div>
+      </div>
+
+      <!-- ===================== Application ===================== -->
+      <div class="dash-view" id="view-application">
+        <div id="applicationArea"></div>
+      </div>
+
+      <!-- ===================== Account ===================== -->
+      <div class="dash-view" id="view-account">
+        <div class="dash-card">
+          <h2>Account Details</h2>
+          <p class="dash-card-lead">Your account information used across your application.</p>
+          <div class="summary-grid">
+            <div class="summary-item"><span>Full Name</span><strong id="acc-name"></strong></div>
+            <div class="summary-item"><span>CNIC / B-Form</span><strong id="acc-cnic"></strong></div>
+            <div class="summary-item"><span>Phone</span><strong id="acc-phone"></strong></div>
+            <div class="summary-item"><span>Email</span><strong id="acc-email"></strong></div>
+          </div>
+          <p class="cta-form-note" style="text-align:left; margin-top:24px;">Need to update these details? Message us on <a href="https://wa.me/923429671520" target="_blank" rel="noopener">WhatsApp</a>.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ===================== Application Form Template ===================== -->
+<template id="applicationFormTemplate">
+  <div class="dash-card">
+    <h2>Admission Application</h2>
+    <p class="dash-card-lead">Fill in your details and upload the required documents. Signed in as <strong class="applicant-email"></strong>.</p>
+
+    <p class="auth-error" id="appFormError"></p>
+
+    <form id="applicationForm">
+      <div class="form-grid">
+        <label>
+          Father's / Guardian's Name
+          <input type="text" name="father" placeholder="Father's full name" required>
+        </label>
+        <label>
+          CNIC / B-Form Number
+          <input type="text" name="cnic" placeholder="XXXXX-XXXXXXX-X" required>
+        </label>
+        <label>
+          Date of Birth
+          <input type="date" name="dob" required>
+        </label>
+        <label>
+          Gender
+          <select name="gender" required>
+            <option value="" disabled selected>Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </label>
+        <label>
+          Previous Qualification
+          <select name="qualification" required>
+            <option value="" disabled selected>Select qualification</option>
+            <option>Matric (Science)</option>
+            <option>FSc Pre-Medical</option>
+            <option>FSc Pre-Engineering</option>
+            <option>ICS / ICOM</option>
+            <option>FA</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>
+          Program of Interest
+          <select name="program" required>
+            <option value="" disabled selected>Select a program</option>
+            <option>BSN &mdash; Generic Nursing</option>
+            <option>LHV &mdash; Lady Health Visitor</option>
+          </select>
+        </label>
+        <label>
+          Matric Marks / Percentage
+          <input type="text" name="marksMatric" placeholder="e.g. 78% or 850/1100" required>
+        </label>
+        <label>
+          F.Sc Marks / Percentage <span class="optional">(if applicable)</span>
+          <input type="text" name="marksFsc" placeholder="e.g. 82% or 940/1100">
+        </label>
+        <label class="span-2">
+          Complete Address
+          <textarea name="address" rows="2" placeholder="House #, Street, Village/Town, Tehsil, District" required></textarea>
+        </label>
+      </div>
+
+      <h3 style="margin:26px 0 16px; font-size:1.1rem;">Required Documents</h3>
+      <div class="upload-grid">
+        <div class="upload-field">
+          <label>CNIC / Form B (scan or photo)
+            <input type="file" name="cnicFormB" accept="image/*,.pdf" required>
+          </label>
+        </div>
+        <div class="upload-field">
+          <label>Domicile Certificate
+            <input type="file" name="domicile" accept="image/*,.pdf" required>
+          </label>
+        </div>
+        <div class="upload-field">
+          <label>Matric DMC + Certificate
+            <input type="file" name="matricDocs" accept="image/*,.pdf" multiple required>
+          </label>
+        </div>
+        <div class="upload-field">
+          <label>F.Sc DMC + Certificate <span class="optional">(if applicable)</span>
+            <input type="file" name="fscDocs" accept="image/*,.pdf" multiple>
+          </label>
+        </div>
+        <div class="upload-field span-2">
+          <label>KMU CAT Result
+            <input type="file" name="kmuCat" accept="image/*,.pdf" required>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="appSubmitBtn" style="margin-top:10px;">Submit Application</button>
+      <p class="cta-form-note">Your details are saved to your account. You can also message us directly on <a href="https://wa.me/923429671520" target="_blank" rel="noopener">WhatsApp</a>.</p>
+    </form>
+  </div>
+</template>
+
+<!-- ===================== Read-only Summary Template ===================== -->
+<template id="applicationSummaryTemplate">
+  <div class="dash-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin-bottom:0;">My Application</h2>
+      <span class="status-badge"></span>
+    </div>
+    <p class="dash-card-lead">Submitted on <span class="submitted-date"></span>. Contact the admissions office if any detail needs correction.</p>
+
+    <div class="summary-grid">
+      <div class="summary-item"><span>Full Name</span><strong class="s-name"></strong></div>
+      <div class="summary-item"><span>Father's / Guardian's Name</span><strong class="s-father"></strong></div>
+      <div class="summary-item"><span>CNIC / B-Form</span><strong class="s-cnic"></strong></div>
+      <div class="summary-item"><span>Date of Birth</span><strong class="s-dob"></strong></div>
+      <div class="summary-item"><span>Gender</span><strong class="s-gender"></strong></div>
+      <div class="summary-item"><span>Phone</span><strong class="s-phone"></strong></div>
+      <div class="summary-item"><span>Email</span><strong class="s-email"></strong></div>
+      <div class="summary-item"><span>Program of Interest</span><strong class="s-program"></strong></div>
+      <div class="summary-item"><span>Previous Qualification</span><strong class="s-qualification"></strong></div>
+      <div class="summary-item"><span>Matric Marks</span><strong class="s-marksMatric"></strong></div>
+      <div class="summary-item"><span>F.Sc Marks</span><strong class="s-marksFsc"></strong></div>
+      <div class="summary-item span-2"><span>Address</span><strong class="s-address"></strong></div>
+    </div>
+
+    <h3 style="margin:26px 0 12px; font-size:1.05rem;">Uploaded Documents</h3>
+    <div class="upload-preview" id="summaryDocs"></div>
+  </div>
+</template>
+
+<script src="js/store.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

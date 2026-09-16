@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard &mdash; Mercy College of Nursing</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+</head>
+<body class="dash-body">
+
+<div class="dash-layout">
+
+  <aside class="dash-sidebar">
+    <a href="../index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>Admin Panel</small>
+      </span>
+    </a>
+
+    <nav class="dash-nav">
+      <button class="dash-nav-link active" data-view="applications"><span class="nav-icon">📋</span> Applications</button>
+      <button class="dash-nav-link" data-view="merit"><span class="nav-icon">🏆</span> Merit List</button>
+    </nav>
+
+    <div class="dash-sidebar-footer">
+      <button class="btn btn-tiny btn-ghost-dark btn-block" id="logoutBtn" style="background:#fff;">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="dash-content">
+    <div class="container">
+
+      <!-- ===================== Applications view ===================== -->
+      <div class="dash-view active" id="view-applications">
+        <div class="dash-card">
+          <div class="admin-toolbar">
+            <h2 style="margin-bottom:0;">Student Applications</h2>
+            <div class="admin-stats" id="adminStats"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table" id="applicationsTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>CNIC</th>
+                  <th>Program</th>
+                  <th>Matric %</th>
+                  <th>F.Sc %</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="applicationsTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="applicationsEmpty" style="display:none;">No applications submitted yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== Merit List view ===================== -->
+      <div class="dash-view" id="view-merit">
+        <div class="dash-card">
+          <h2>Run Merit List</h2>
+          <p class="dash-card-lead">Ranks verified applicants for a program by marks and allocates the top seats.</p>
+
+          <div class="merit-controls">
+            <label>
+              Program
+              <select id="meritProgram">
+                <option>BSN &mdash; Generic Nursing</option>
+                <option>LHV &mdash; Lady Health Visitor</option>
+              </select>
+            </label>
+            <label>
+              Seats Available
+              <input type="number" id="meritSeats" min="1" value="30" style="width:120px;">
+            </label>
+            <button class="btn btn-accent" id="runMeritBtn">Run Merit List</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="admin-table" id="meritTable">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>CNIC</th>
+                  <th>Matric %</th>
+                  <th>F.Sc %</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="meritTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="meritEmpty">Run the merit list to see ranked results here.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- Application detail modal -->
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal-box">
+    <span class="modal-close" id="detailModalClose">&times;</span>
+    <h3>Application Details</h3>
+    <div class="summary-grid" id="detailSummary"></div>
+    <h3 style="margin:22px 0 12px; font-size:1.05rem;">Uploaded Documents</h3>
+    <div class="upload-preview" id="detailDocs"></div>
+  </div>
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/admin-dashboard.js"></script>
+</body>
+</html>

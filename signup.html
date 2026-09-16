@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account &mdash; Mercy College of Nursing</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+</head>
+<body class="auth-body">
+
+<div class="auth-split">
+  <div class="auth-side">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="30" height="30" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>of Nursing &mdash; Suddo, Timergara</small>
+      </span>
+    </a>
+
+    <div class="auth-side-content">
+      <h2>Start your nursing career with us</h2>
+      <ul class="auth-side-points">
+        <li>✔ Simple online application</li>
+        <li>✔ Upload documents securely</li>
+        <li>✔ Track your merit status in real time</li>
+      </ul>
+    </div>
+
+    <a href="index.html" class="auth-side-back">&larr; Back to website</a>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>Create Your Account</h1>
+      <p class="auth-lead">Sign up to start your admission application, upload documents and track your status.</p>
+
+      <p class="auth-error" id="authError"></p>
+
+      <form id="signupForm">
+        <label>
+          Full Name
+          <input type="text" name="name" placeholder="Your full name" required>
+        </label>
+        <label>
+          CNIC / B-Form Number
+          <input type="text" name="cnic" placeholder="XXXXX-XXXXXXX-X" required>
+        </label>
+        <label>
+          Phone Number
+          <input type="tel" name="phone" placeholder="03XX-XXXXXXX" required>
+        </label>
+        <label>
+          Email Address
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" placeholder="Create a password" minlength="6" required>
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="signin.html">Sign In</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/signup.js"></script>
+</body>
+</html>

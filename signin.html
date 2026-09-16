@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In &mdash; Mercy College of Nursing</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+</head>
+<body class="auth-body">
+
+<div class="auth-split">
+  <div class="auth-side">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="30" height="30" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Mercy College</strong>
+        <small>of Nursing &mdash; Suddo, Timergara</small>
+      </span>
+    </a>
+
+    <div class="auth-side-content">
+      <h2>Welcome back to your admission journey</h2>
+      <ul class="auth-side-points">
+        <li>✔ Continue your saved application</li>
+        <li>✔ Check your verification status</li>
+        <li>✔ See your merit result the moment it's declared</li>
+      </ul>
+    </div>
+
+    <a href="index.html" class="auth-side-back">&larr; Back to website</a>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>Welcome Back</h1>
+      <p class="auth-lead">Sign in to continue your admission application.</p>
+
+      <p class="auth-error" id="authError"></p>
+
+      <form id="signinForm">
+        <label>
+          Email Address
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" placeholder="Your password" required>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+
+      <p class="auth-switch">Don&rsquo;t have an account? <a href="signup.html">Sign Up</a></p>
+      <p class="auth-switch">Administrator? <a href="admin/login.html">Admin Sign In</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/signin.js"></script>
+</body>
+</html>

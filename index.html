@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mercy College of Nursing Suddo Timergara</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -16,8 +17,8 @@
 <div class="top-bar" id="topBar">
   <div class="container top-bar-inner">
     <div class="top-bar-left">
-      <a href="tel:+923XXXXXXXXX">📞 +92 3XX XXXXXXX</a>
-      <a href="mailto:info@mercycollegenursing.edu.pk" class="hide-mobile">✉️ info@mercycollegenursing.edu.pk</a>
+      <a href="tel:+923429671520">📞 +92 342 9671520</a>
+      <a href="mailto:principal.mcn.edu@gmail.com" class="hide-mobile">✉️ principal.mcn.edu@gmail.com</a>
     </div>
     <div class="top-bar-right">
       <div class="social-links top-social">
@@ -25,7 +26,8 @@
         <a href="#" aria-label="Instagram">IG</a>
         <a href="#" aria-label="YouTube">YT</a>
       </div>
-      <a href="#admissions" class="btn btn-tiny btn-accent">Apply Online</a>
+      <a href="signin.html" class="hide-mobile">Sign In</a>
+      <a href="signup.html" class="btn btn-tiny btn-accent">Apply Online</a>
     </div>
   </div>
 </div>
@@ -58,7 +60,8 @@
       <a href="#faculty">Faculty</a>
       <a href="#gallery">Gallery</a>
       <a href="#contact">Contact</a>
-      <a href="#admissions" class="btn btn-small btn-primary nav-cta">Apply Now</a>
+      <a href="signin.html">Sign In</a>
+      <a href="signup.html" class="btn btn-small btn-primary nav-cta">Apply Now</a>
     </nav>
   </div>
 </header>
@@ -66,22 +69,17 @@
 <!-- ================= HERO ================= -->
 <section class="hero" id="home">
   <div class="hero-bg"></div>
-  <div class="container hero-inner">
+  <div class="container hero-inner hero-inner-solo">
     <div class="hero-text">
-      <p class="eyebrow">Recognized Nursing Institution &bull; Suddo, Timergara</p>
+      <div class="eyebrow">
+        <span class="admissions-pill">2026 Admissions Open</span>
+        <span class="eyebrow-text">Recognized Nursing Institution &bull; Suddo, Timergara</span>
+      </div>
       <h1>CARE. LEARN.<br>LEAD.</h1>
       <p class="hero-sub">Building compassionate, skilled and confident nurses for tomorrow&rsquo;s healthcare &mdash; right here at Mercy College of Nursing, Suddo Timergara.</p>
       <div class="hero-actions">
         <a href="#courses" class="btn btn-primary">Explore Courses</a>
-        <a href="#admissions" class="btn btn-ghost">Apply Now</a>
-      </div>
-    </div>
-    <div class="hero-media">
-      <div class="hero-media-shape"></div>
-      <img src="img/web/hero-student.jpg" alt="Mercy College of Nursing student" width="1000" height="1333">
-      <div class="hero-media-badge">
-        <strong>2026</strong>
-        <span>Admissions Open</span>
+        <a href="signup.html" class="btn btn-ghost">Apply Now</a>
       </div>
     </div>
   </div>
@@ -98,7 +96,7 @@
       <a href="#courses" class="quick-card">
         <span class="quick-icon">🎓</span>
         <h4>Accredited Programs</h4>
-        <p>Generic BSN, Post RN BSN &amp; diploma pathways.</p>
+        <p>BSN Generic Nursing &amp; LHV pathways.</p>
       </a>
       <a href="#faculty" class="quick-card">
         <span class="quick-icon">🩺</span>
@@ -124,6 +122,11 @@
         <span class="quick-icon">📝</span>
         <h4>Easy Admission</h4>
         <p>Simple application &amp; WhatsApp support.</p>
+      </a>
+      <a href="#qec" class="quick-card">
+        <span class="quick-icon">🔍</span>
+        <h4>Quality Enhancement Cell</h4>
+        <p>Ensures academic &amp; clinical quality standards.</p>
       </a>
     </div>
   </div>
@@ -159,7 +162,7 @@
         <h3><span class="counter">0</span>+</h3>
         <p>Expert Faculty</p>
       </div>
-      <div class="stat" data-count="6">
+      <div class="stat" data-count="2">
         <h3><span class="counter">0</span></h3>
         <p>Nursing Programs</p>
       </div>
@@ -171,61 +174,41 @@
   </div>
 </section>
 
+<!-- ================= QEC ================= -->
+<section class="qec" id="qec">
+  <div class="container qec-grid">
+    <div class="qec-icon-wrap">🔍</div>
+    <div>
+      <p class="section-tag">Quality Assurance</p>
+      <h2>Quality Enhancement Cell (QEC)</h2>
+      <p>Mercy College of Nursing operates a dedicated Quality Enhancement Cell responsible for monitoring and maintaining academic and clinical training standards across every program. The QEC reviews curriculum delivery, faculty performance, student feedback and clinical placement quality &mdash; ensuring the college stays aligned with regulatory and accreditation requirements set by the Khyber Pakhtunkhwa Nurses &amp; Midwives Council and affiliated bodies.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= COURSES OFFERED ================= -->
 <section class="courses" id="courses">
   <div class="container">
     <p class="section-tag center">Programs</p>
     <h2 class="center">Courses We Offer</h2>
-    <p class="section-lead center">A range of accredited nursing programs designed to match every stage of your career journey.</p>
+    <p class="section-lead center">Accredited nursing programs designed to build your career from the ground up.</p>
 
-    <div class="course-grid">
+    <div class="course-grid course-grid-2">
 
       <div class="course-card">
         <div class="course-icon">🩺</div>
         <span class="badge">4 Years</span>
         <h3>BSN &mdash; Generic Nursing</h3>
         <p>A four-year Bachelor of Science in Nursing for students entering the profession directly after intermediate/FSc.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
-      </div>
-
-      <div class="course-card">
-        <div class="course-icon">📘</div>
-        <span class="badge">2 Years</span>
-        <h3>Post RN BSN</h3>
-        <p>An advanced pathway for registered nurses to upgrade their qualification into a full Bachelor's degree.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
-      </div>
-
-      <div class="course-card">
-        <div class="course-icon">💉</div>
-        <span class="badge">3 Years</span>
-        <h3>Diploma in Generic Nursing</h3>
-        <p>Comprehensive clinical and theoretical training preparing students for registration as professional nurses.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
+        <a href="signup.html" class="card-link">Apply now &rarr;</a>
       </div>
 
       <div class="course-card">
         <div class="course-icon">🍼</div>
-        <span class="badge">1.5 Years</span>
-        <h3>Midwifery / LHV</h3>
+        <span class="badge">LHV</span>
+        <h3>Lady Health Visitor (LHV)</h3>
         <p>Specialized training in maternal and child health, community midwifery and reproductive care.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
-      </div>
-
-      <div class="course-card">
-        <div class="course-icon">🏥</div>
-        <span class="badge">1 Year</span>
-        <h3>Nursing Assistant Certificate</h3>
-        <p>A foundational certificate course covering essential bedside care and patient support skills.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
-      </div>
-
-      <div class="course-card">
-        <div class="course-icon">🧑‍⚕️</div>
-        <span class="badge">6 Months</span>
-        <h3>Continuing Education Workshops</h3>
-        <p>Short courses and certifications in first aid, infection control, and specialized clinical skills.</p>
-        <a href="#admissions" class="card-link">Learn more &rarr;</a>
+        <a href="signup.html" class="card-link">Apply now &rarr;</a>
       </div>
 
     </div>
@@ -302,21 +285,30 @@
 
     <div class="faculty-grid">
 
-      <div class="faculty-card">
-        <img src="img/web/faculty-principal.jpg" alt="Principal, Mercy College of Nursing" width="700" height="701" loading="lazy">
+      <div class="faculty-card faculty-card-noimg">
+        <div class="faculty-avatar-placeholder">🎓</div>
         <div class="faculty-info">
-          <h3>Full Name</h3>
+          <h3>Allama Iqbal</h3>
+          <span>Managing Director (MD)</span>
+          <p>Provides institutional leadership and long-term direction for the college.</p>
+        </div>
+      </div>
+
+      <div class="faculty-card">
+        <img src="img/web/faculty-principal.jpg" alt="Muhammad Ali, Principal, Mercy College of Nursing" width="700" height="701" loading="lazy">
+        <div class="faculty-info">
+          <h3>Muhammad Ali</h3>
           <span>Principal</span>
           <p>Leads academic direction, administration and institutional quality standards.</p>
         </div>
       </div>
 
-      <div class="faculty-card">
-        <img src="img/web/faculty-speaker.jpg" alt="Senior faculty member, Mercy College of Nursing" width="700" height="701" loading="lazy">
+      <div class="faculty-card faculty-card-noimg">
+        <div class="faculty-avatar-placeholder">🧾</div>
         <div class="faculty-info">
-          <h3>Full Name</h3>
-          <span>Senior Faculty Member</span>
-          <p>Guides students through lectures, seminars and professional development.</p>
+          <h3>Yasir Khan</h3>
+          <span>Accountant</span>
+          <p>Manages fee collection, finances and accounts for the college.</p>
         </div>
       </div>
 
@@ -337,18 +329,10 @@
       </div>
 
       <div class="faculty-card faculty-card-activity">
-        <img src="img/web/faculty-meeting1.jpg" alt="Academic planning meeting" width="700" height="700" loading="lazy">
+        <img src="img/web/faculty-speaker.jpg" alt="Seminar and guest lecture session" width="700" height="701" loading="lazy">
         <div class="faculty-info">
-          <span class="activity-tag">Academic Planning</span>
-          <p>Staff regularly meet to review curriculum quality and student progress.</p>
-        </div>
-      </div>
-
-      <div class="faculty-card faculty-card-activity">
-        <img src="img/web/faculty-office1.jpg" alt="Administrative office" width="700" height="700" loading="lazy">
-        <div class="faculty-info">
-          <span class="activity-tag">Administrative Support</span>
-          <p>Our admin team supports students through admissions and daily college affairs.</p>
+          <span class="activity-tag">Seminars &amp; Guest Sessions</span>
+          <p>Regular seminars keep students engaged with visiting speakers and topics.</p>
         </div>
       </div>
 
@@ -370,96 +354,32 @@
       <img src="img/web/gallery-computer-lab.jpg" alt="Computer lab session" loading="lazy" data-full="img/web/gallery-computer-lab.jpg">
       <img src="img/web/gallery-anatomy-lab.jpg" alt="Anatomy lab with skeleton model" loading="lazy" data-full="img/web/gallery-anatomy-lab.jpg">
       <img src="img/web/gallery-library.jpg" alt="Students studying in the library" loading="lazy" data-full="img/web/gallery-library.jpg">
+      <img src="img/web/faculty-meeting1.jpg" alt="Academic planning meeting" loading="lazy" data-full="img/web/faculty-meeting1.jpg">
+      <img src="img/web/faculty-office1.jpg" alt="Administrative office" loading="lazy" data-full="img/web/faculty-office1.jpg">
     </div>
   </div>
 </section>
 
-<!-- ================= ADMISSIONS CTA / FORM ================= -->
+<!-- ================= ADMISSIONS CTA / AUTH GATE ================= -->
 <section class="cta-banner" id="admissions">
   <div class="container cta-grid">
     <div class="cta-copy">
       <h2>Ready to begin your nursing journey?</h2>
-      <p>Admissions for the upcoming session are now open. Send us your details and our admissions team will reach out to you on WhatsApp.</p>
+      <p>Admissions for the upcoming session are now open. Create your free student account to submit your application, upload your documents and track your merit status online.</p>
       <ul class="cta-points">
         <li>✔ Simple, guided application process</li>
-        <li>✔ Scholarships for deserving students</li>
+        <li>✔ Upload documents &amp; track status anytime</li>
         <li>✔ Direct WhatsApp support for queries</li>
       </ul>
     </div>
 
-    <form class="cta-form" id="applyForm">
-      <h3>Admission Application</h3>
-
-      <div class="form-grid">
-        <label>
-          Full Name
-          <input type="text" name="name" placeholder="Your full name" required>
-        </label>
-        <label>
-          Father's / Guardian's Name
-          <input type="text" name="father" placeholder="Father's full name" required>
-        </label>
-        <label>
-          CNIC / B-Form Number
-          <input type="text" name="cnic" placeholder="XXXXX-XXXXXXX-X" required>
-        </label>
-        <label>
-          Date of Birth
-          <input type="date" name="dob" required>
-        </label>
-        <label>
-          Gender
-          <select name="gender" required>
-            <option value="" disabled selected>Select gender</option>
-            <option>Male</option>
-            <option>Female</option>
-          </select>
-        </label>
-        <label>
-          Phone Number
-          <input type="tel" name="phone" placeholder="03XX-XXXXXXX" required>
-        </label>
-        <label>
-          Email <span class="optional">(optional)</span>
-          <input type="email" name="email" placeholder="you@example.com">
-        </label>
-        <label>
-          Previous Qualification
-          <select name="qualification" required>
-            <option value="" disabled selected>Select qualification</option>
-            <option>Matric (Science)</option>
-            <option>FSc Pre-Medical</option>
-            <option>FSc Pre-Engineering</option>
-            <option>ICS / ICOM</option>
-            <option>FA</option>
-            <option>Other</option>
-          </select>
-        </label>
-        <label>
-          Marks / Percentage Obtained
-          <input type="text" name="marks" placeholder="e.g. 78% or 850/1100" required>
-        </label>
-        <label>
-          Program of Interest
-          <select name="program" required>
-            <option value="" disabled selected>Select a program</option>
-            <option>BSN &mdash; Generic Nursing</option>
-            <option>Post RN BSN</option>
-            <option>Diploma in Generic Nursing</option>
-            <option>Midwifery / LHV</option>
-            <option>Nursing Assistant Certificate</option>
-            <option>Continuing Education Workshops</option>
-          </select>
-        </label>
-        <label class="span-2">
-          Complete Address
-          <textarea name="address" rows="2" placeholder="House #, Street, Village/Town, Tehsil, District" required></textarea>
-        </label>
-      </div>
-
-      <button type="submit" class="btn btn-accent btn-block" id="applySubmitBtn">Send Application via WhatsApp</button>
-      <p class="cta-form-note" id="applyFormNote">Opens WhatsApp with your application details prefilled &mdash; our admissions team will follow up with next steps and required documents.</p>
-    </form>
+    <div class="cta-form auth-gate-card">
+      <h3>Student Portal</h3>
+      <p class="auth-gate-lead">Sign up to start a new application, or sign in if you already have an account.</p>
+      <a href="signup.html" class="btn btn-accent btn-block">Create Account &amp; Apply</a>
+      <a href="signin.html" class="btn btn-ghost-dark btn-block auth-gate-signin">I already have an account &mdash; Sign In</a>
+      <p class="cta-form-note">Prefer WhatsApp? Message us directly at <a href="https://wa.me/923429671520">+92 342 9671520</a>.</p>
+    </div>
   </div>
 </section>
 
@@ -489,13 +409,15 @@
       <a href="#curriculum">Curriculum</a>
       <a href="#faculty">Faculty</a>
       <a href="#gallery">Gallery</a>
+      <a href="#qec">QEC</a>
+      <a href="signin.html">Student Portal</a>
     </div>
 
     <div class="footer-col">
       <h4>Contact</h4>
       <p>📍 Suddo, Timergara, Lower Dir, Khyber Pakhtunkhwa, Pakistan</p>
-      <p>📞 +92 3XX XXXXXXX</p>
-      <p>✉️ info@mercycollegenursing.edu.pk</p>
+      <p>📞 +92 342 9671520</p>
+      <p>✉️ principal.mcn.edu@gmail.com</p>
     </div>
 
     <div class="footer-col">
@@ -515,7 +437,7 @@
   </div>
 </footer>
 
-<a href="https://wa.me/923XXXXXXXXX" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+<a href="https://wa.me/923429671520" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 32 32" width="26" height="26" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.696 4.611 1.902 6.487L4 29l7.72-1.865A11.94 11.94 0 0 0 16.001 27C22.629 27 28 21.627 28 15S22.629 3 16.001 3zm0 21.75c-1.94 0-3.79-.51-5.4-1.47l-.387-.23-4.583 1.107 1.128-4.47-.253-.399A9.71 9.71 0 0 1 5.25 15c0-5.936 4.815-10.75 10.751-10.75S26.75 9.064 26.75 15 21.937 24.75 16.001 24.75zm5.907-8.05c-.324-.163-1.917-.946-2.214-1.055-.297-.108-.513-.163-.729.163-.216.325-.838 1.055-1.028 1.271-.19.217-.378.244-.702.082-.324-.163-1.369-.505-2.607-1.61-.964-.86-1.615-1.923-1.804-2.248-.19-.325-.02-.5.143-.663.146-.146.324-.38.487-.57.163-.19.216-.325.324-.542.108-.217.054-.407-.027-.57-.081-.163-.729-1.759-.999-2.408-.263-.632-.53-.546-.729-.556l-.62-.011c-.216 0-.567.081-.864.407-.297.325-1.134 1.108-1.134 2.703 0 1.596 1.161 3.137 1.323 3.354.163.216 2.286 3.491 5.538 4.897.774.334 1.377.534 1.848.683.776.247 1.483.212 2.042.129.623-.093 1.917-.784 2.187-1.542.27-.759.27-1.409.19-1.543-.08-.135-.297-.216-.62-.38z"/></svg>
 </a>
 
