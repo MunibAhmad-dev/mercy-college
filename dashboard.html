@@ -192,30 +192,31 @@
         </label>
       </div>
 
-      <h3 style="margin:26px 0 16px; font-size:1.1rem;">Required Documents</h3>
+      <h3 style="margin:26px 0 4px; font-size:1.1rem;">Documents</h3>
+      <p style="font-size:0.85rem; color:var(--text-muted,#6b7280); margin:0 0 16px;">All document fields are optional — you can submit your application now and add missing documents later.</p>
       <div class="upload-grid">
         <div class="upload-field">
-          <label>CNIC / Form-B Number
-            <input type="text" name="cnicNumber" placeholder="e.g. 35202-1234567-1" required>
+          <label>CNIC / Form-B Number <span class="optional">(optional)</span>
+            <input type="text" name="cnicNumber" placeholder="e.g. 35202-1234567-1">
           </label>
-          <label>CNIC / Form-B — Front Photo
-            <input type="file" name="cnicFront" accept="image/*,.pdf" required>
+          <label>CNIC / Form-B — Front Photo <span class="optional">(optional)</span>
+            <input type="file" name="cnicFront" accept="image/*,.pdf">
           </label>
           <div class="upload-preview" data-preview-for="cnicFront"></div>
-          <label>CNIC / Form-B — Back Photo
-            <input type="file" name="cnicBack" accept="image/*,.pdf" required>
+          <label>CNIC / Form-B — Back Photo <span class="optional">(optional)</span>
+            <input type="file" name="cnicBack" accept="image/*,.pdf">
           </label>
           <div class="upload-preview" data-preview-for="cnicBack"></div>
         </div>
         <div class="upload-field">
-          <label>Domicile Certificate
-            <input type="file" name="domicile" accept="image/*,.pdf" required>
+          <label>Domicile Certificate <span class="optional">(optional)</span>
+            <input type="file" name="domicile" accept="image/*,.pdf">
           </label>
           <div class="upload-preview" data-preview-for="domicile"></div>
         </div>
         <div class="upload-field">
-          <label>Matric DMC + Certificate
-            <input type="file" name="matricDocs" accept="image/*,.pdf" multiple required>
+          <label>Matric DMC + Certificate <span class="optional">(optional)</span>
+            <input type="file" name="matricDocs" accept="image/*,.pdf" multiple>
           </label>
           <div class="upload-preview" data-preview-for="matricDocs"></div>
         </div>
@@ -226,8 +227,8 @@
           <div class="upload-preview" data-preview-for="fscDocs"></div>
         </div>
         <div class="upload-field span-2">
-          <label>KMU CAT Result
-            <input type="file" name="kmuCat" accept="image/*,.pdf" required>
+          <label>KMU CAT Result <span class="optional">(optional)</span>
+            <input type="file" name="kmuCat" accept="image/*,.pdf">
           </label>
           <div class="upload-preview" data-preview-for="kmuCat"></div>
         </div>
@@ -257,6 +258,7 @@
       <div class="summary-item"><span>Full Name</span><strong class="s-name"></strong></div>
       <div class="summary-item"><span>Father's / Guardian's Name</span><strong class="s-father"></strong></div>
       <div class="summary-item"><span>CNIC / B-Form</span><strong class="s-cnic"></strong></div>
+      <div class="summary-item"><span>CNIC / Form-B Number</span><strong class="s-cnicNumber"></strong></div>
       <div class="summary-item"><span>Date of Birth</span><strong class="s-dob"></strong></div>
       <div class="summary-item"><span>Gender</span><strong class="s-gender"></strong></div>
       <div class="summary-item"><span>Phone</span><strong class="s-phone"></strong></div>

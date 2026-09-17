@@ -52,6 +52,7 @@
     <nav class="dash-nav">
       <button class="dash-nav-link active" data-view="applications"><span class="nav-icon">📋</span> Applications</button>
       <button class="dash-nav-link" data-view="merit"><span class="nav-icon">🏆</span> Merit List</button>
+      <button class="dash-nav-link" data-view="settings"><span class="nav-icon">⚙️</span> Settings</button>
     </nav>
 
     <div class="dash-sidebar-footer">
@@ -66,7 +67,10 @@
       <div class="dash-view active" id="view-applications">
         <div class="dash-card">
           <div class="admin-toolbar">
-            <h2 style="margin-bottom:0;">Student Applications</h2>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+              <h2 style="margin-bottom:0;">Student Applications</h2>
+              <button class="btn btn-tiny btn-ghost-dark" id="refreshAppsBtn" title="Refresh list">↻ Refresh</button>
+            </div>
             <div class="admin-stats" id="adminStats"></div>
           </div>
           <div class="table-wrap">
@@ -115,6 +119,30 @@
 
           <div class="table-wrap" id="meritResultsWrap">
             <div class="empty-state" id="meritEmpty">Run the merit list to see ranked results here.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== Settings view ===================== -->
+      <div class="dash-view" id="view-settings">
+        <div class="dash-card">
+          <h2>Settings</h2>
+
+          <div style="margin-top:28px; padding:22px; border:1.5px solid #f5c6cb; border-radius:12px; background:#fff8f8;">
+            <h3 style="margin:0 0 6px; color:#c0392b; font-size:1.05rem;">Danger Zone — Delete All Application Data</h3>
+            <p style="margin:0 0 16px; font-size:0.9rem; color:#6b7280;">
+              Permanently deletes <strong>all student applications and uploaded files</strong>. Admin accounts are preserved.
+              This action <strong>cannot be undone</strong>.
+            </p>
+            <p class="auth-error" id="deleteDataError"></p>
+            <p id="deleteDataStats" style="font-size:0.88rem; color:#6b7280; margin-bottom:14px;"></p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+              <button class="btn btn-tiny btn-ghost-dark" id="loadDeleteStatsBtn">Preview What Will Be Deleted</button>
+              <button class="btn btn-primary" id="deleteAllDataBtn" style="background:#c0392b; border-color:#c0392b;" disabled>
+                Delete All Data
+              </button>
+            </div>
+            <p id="deleteDataSuccess" style="display:none; margin-top:12px; color:#27ae60; font-weight:600;">All application data deleted successfully.</p>
           </div>
         </div>
       </div>

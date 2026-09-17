@@ -116,7 +116,12 @@ async function renderApplicationArea() {
   }
 
   const tpl = document.getElementById('applicationSummaryTemplate').content.cloneNode(true);
-  tpl.querySelector('.status-badge').outerHTML = statusBadgeMarkup(app);
+  const badgeEl = tpl.querySelector('.status-badge');
+  const s = (app.status || '').toLowerCase();
+  if (s.includes('reject') || (s.includes('not') && s.includes('allocat'))) badgeEl.classList.add('not-allocated');
+  else if (s.includes('allocat')) badgeEl.classList.add('allocated');
+  else if (s.includes('verif')) badgeEl.classList.add('verified');
+  badgeEl.textContent = app.status ? app.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Submitted';
   tpl.querySelector('.submitted-date').textContent = app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : '—';
   tpl.querySelector('.s-name').textContent = currentUser.name;
   tpl.querySelector('.s-father').textContent = app.father_name || '—';
@@ -130,6 +135,7 @@ async function renderApplicationArea() {
   tpl.querySelector('.s-marksMatric').textContent = app.marks_matric ?? '—';
   tpl.querySelector('.s-marksFsc').textContent = app.marks_fsc ?? '—';
   tpl.querySelector('.s-address').textContent = app.address || '—';
+  tpl.querySelector('.s-cnicNumber').textContent = app.cnic_number || '—';
 
   area.appendChild(tpl);
 

@@ -196,6 +196,15 @@ const Store = {
     return json.data;
   },
 
+  async adminResetPassword(userId, newPassword) {
+    const json = await apiRequest(`/admin/students/${userId}/reset-password`, {
+      method: 'POST',
+      body: { new_password: newPassword },
+      token: getAdminToken(),
+    });
+    return json;
+  },
+
   async adminGetMeritList(program, seats) {
     const json = await apiRequest('/admin/merit-list', { token: getAdminToken(), query: { program, seats } });
     return json.data;
@@ -203,5 +212,27 @@ const Store = {
 
   adminGetFileUrl(filename) {
     return fetchProtectedFile(filename, getAdminToken());
+  },
+
+  async adminGetDataStats() {
+    const json = await apiRequest('/admin/data/stats', { token: getAdminToken() });
+    return json.data;
+  },
+
+  async adminDeleteAllData() {
+    // Backend requires x-confirm-delete header — use fetch directly
+    const res = await fetch(API('/admin/data'), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getAdminToken()}`,
+        'x-confirm-delete': 'DELETE_ALL_MERCY',
+      },
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok || (data && data.success === false)) {
+      throw new Error((data && (data.error || data.message)) || `Delete failed (${res.status})`);
+    }
+    return data;
   },
 };

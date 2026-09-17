@@ -124,6 +124,11 @@ async function openDetailModal(appId) {
   document.getElementById('detailDocs').innerHTML = '';
   document.getElementById('detailProfilePic').removeAttribute('src');
   document.getElementById('statusFormError').classList.remove('visible');
+  // Reset credentials panel
+  const credBox = document.getElementById('credentialsBox');
+  credBox.style.display = 'none';
+  credBox.innerHTML = '';
+  document.getElementById('viewCredentialsBtn').textContent = 'View Credentials';
   detailModal.classList.add('open');
 
   let app;
@@ -136,16 +141,27 @@ async function openDetailModal(appId) {
   if (!app) return;
 
   const rows = [
-    ['Full Name', app.user?.name], ["Father's/Guardian's Name", app.father_name],
-    ['CNIC / Form-B Number', app.cnic_number], ['Account CNIC', app.user?.cnic],
-    ['Date of Birth', app.dob], ['Gender', app.gender],
-    ['Phone', app.user?.phone], ['Email', app.user?.email],
+    ['Full Name', app.user?.name],
+    ["Father's / Guardian's Name", app.father_name],
+    ['CNIC / Form-B Number', app.cnic_number],
+    ['Account CNIC', app.user?.cnic],
+    ['Date of Birth', app.dob],
+    ['Gender', app.gender],
+    ['Phone', app.user?.phone],
+    ['Email', app.user?.email],
+    ['Address', app.address],
     ['Program of Interest', PROGRAM_LABELS[app.program] || app.program],
-    ['Previous Qualification', app.qualification], ['Matric Marks', app.marks_matric],
-    ['F.Sc Marks', app.marks_fsc ?? '—'], ['Address', app.address],
+    ['Previous Qualification', app.qualification],
+    ['Matric Marks (%)', pct(app.marks_matric)],
+    ['F.Sc Marks (%)', app.marks_fsc != null ? pct(app.marks_fsc) : '—'],
+    ['Application Status', app.status ? app.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Pending'],
+    ['Merit Rank', app.merit_rank ?? '—'],
+    ['Admin Note', app.admin_note || '—'],
+    ['Submitted At', app.submitted_at ? new Date(app.submitted_at).toLocaleString() : '—'],
+    ['Application ID', app.id],
   ];
   document.getElementById('detailSummary').innerHTML = rows.map(([label, value]) => `
-    <div class="summary-item"><span>${label}</span><strong>${value || '—'}</strong></div>
+    <div class="summary-item"><span>${label}</span><strong>${value !== undefined && value !== null ? value : '—'}</strong></div>
   `).join('');
 
   if (app.profile_picture) {
@@ -211,6 +227,7 @@ async function openDetailModal(appId) {
   document.getElementById('adminNoteInput').value = app.admin_note || '';
 }
 
+document.getElementById('refreshAppsBtn').addEventListener('click', renderApplications);
 document.getElementById('detailModalClose').addEventListener('click', () => detailModal.classList.remove('open'));
 detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.remove('open'); });
 
@@ -240,6 +257,75 @@ document.getElementById('statusForm').addEventListener('submit', async (e) => {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Save Status';
+  }
+});
+
+// ===================== Credentials viewer =====================
+document.getElementById('viewCredentialsBtn').addEventListener('click', async () => {
+  const credBox = document.getElementById('credentialsBox');
+  const btn = document.getElementById('viewCredentialsBtn');
+  if (credBox.style.display !== 'none') {
+    credBox.style.display = 'none';
+    btn.textContent = 'View Credentials';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+  try {
+    // Get the app to extract user id (user.id is always in the response)
+    const app = await Store.adminGetApplication(activeApplicationId);
+    const creds = await Store.adminGetCredentials(app.user?.id || app.user_id);
+    const pwDisplay = creds.password_plain
+      ? `<strong style="font-family:monospace;">${creds.password_plain}</strong>`
+      : `<span style="color:#999;font-size:0.82rem;">Not stored — use Reset below to set one</span>`;
+
+    credBox.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;color:var(--muted,#888);white-space:nowrap;">Name</td><td style="padding:4px 8px;"><strong>${creds.name || '—'}</strong></td></tr>
+        <tr><td style="padding:4px 8px;color:var(--muted,#888);white-space:nowrap;">Email</td><td style="padding:4px 8px;"><strong>${creds.email || '—'}</strong></td></tr>
+        <tr><td style="padding:4px 8px;color:var(--muted,#888);white-space:nowrap;">Phone</td><td style="padding:4px 8px;"><strong>${creds.phone || '—'}</strong></td></tr>
+        <tr><td style="padding:4px 8px;color:var(--muted,#888);white-space:nowrap;">CNIC</td><td style="padding:4px 8px;"><strong>${creds.cnic || '—'}</strong></td></tr>
+        <tr><td style="padding:4px 8px;color:var(--muted,#888);white-space:nowrap;">Password</td><td style="padding:4px 8px;">${pwDisplay}</td></tr>
+      </table>
+      <p style="margin:10px 0 6px;font-size:0.8rem;color:var(--muted,#888);">Share only with the student for account recovery.</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+        <input type="text" id="resetPwInput" placeholder="New password (min 6 chars)"
+          style="flex:1;min-width:160px;padding:6px 10px;border:1px solid #ccc;border-radius:8px;font-size:0.85rem;">
+        <button type="button" class="btn btn-tiny btn-primary" id="resetPwBtn">Reset Password</button>
+      </div>
+      <p id="resetPwMsg" style="margin:6px 0 0;font-size:0.82rem;display:none;"></p>`;
+
+    // Wire the reset button (scoped inside the box)
+    const resetBtn = credBox.querySelector('#resetPwBtn');
+    const resetInput = credBox.querySelector('#resetPwInput');
+    const resetMsg = credBox.querySelector('#resetPwMsg');
+    resetBtn.addEventListener('click', async () => {
+      const pw = resetInput.value.trim();
+      if (pw.length < 6) { resetMsg.textContent = 'Password must be at least 6 characters.'; resetMsg.style.color = 'red'; resetMsg.style.display = 'block'; return; }
+      resetBtn.disabled = true; resetBtn.textContent = 'Saving...';
+      try {
+        const app = await Store.adminGetApplication(activeApplicationId);
+        await Store.adminResetPassword(app.user?.id || app.user_id, pw);
+        resetMsg.textContent = `Password updated to: ${pw}`;
+        resetMsg.style.color = 'green';
+        resetMsg.style.display = 'block';
+        resetInput.value = '';
+      } catch (err) {
+        resetMsg.textContent = err.message;
+        resetMsg.style.color = 'red';
+        resetMsg.style.display = 'block';
+      } finally {
+        resetBtn.disabled = false; resetBtn.textContent = 'Reset Password';
+      }
+    });
+    credBox.style.display = 'block';
+    btn.textContent = 'Hide Credentials';
+  } catch (err) {
+    credBox.innerHTML = `<span style="color:red;">Could not load credentials: ${err.message}</span>`;
+    credBox.style.display = 'block';
+    btn.textContent = 'View Credentials';
+  } finally {
+    btn.disabled = false;
   }
 });
 
@@ -279,6 +365,58 @@ document.getElementById('runMeritBtn').addEventListener('click', async () => {
     wrap.innerHTML = '';
     errorEl.textContent = `Could not load the merit list: ${err.message}`;
     errorEl.classList.add('visible');
+  }
+});
+
+// ===================== Settings — delete all data =====================
+document.getElementById('loadDeleteStatsBtn').addEventListener('click', async () => {
+  const statsEl = document.getElementById('deleteDataStats');
+  const deleteBtn = document.getElementById('deleteAllDataBtn');
+  const errorEl = document.getElementById('deleteDataError');
+  errorEl.classList.remove('visible');
+  statsEl.textContent = 'Loading...';
+  deleteBtn.disabled = true;
+  try {
+    const stats = await Store.adminGetDataStats();
+    const lines = Object.entries(stats || {})
+      .map(([k, v]) => `${v} ${k.replace(/_/g, ' ')}`)
+      .join(' · ');
+    statsEl.textContent = lines || 'No data found.';
+    deleteBtn.disabled = false;
+  } catch (err) {
+    statsEl.textContent = '';
+    errorEl.textContent = `Could not load stats: ${err.message}`;
+    errorEl.classList.add('visible');
+  }
+});
+
+document.getElementById('deleteAllDataBtn').addEventListener('click', async () => {
+  const confirmed = window.confirm(
+    'Are you absolutely sure?\n\nThis will permanently delete ALL student applications and uploaded documents.\nAdmin accounts will be kept.\n\nThis cannot be undone.'
+  );
+  if (!confirmed) return;
+
+  const deleteBtn = document.getElementById('deleteAllDataBtn');
+  const loadBtn = document.getElementById('loadDeleteStatsBtn');
+  const errorEl = document.getElementById('deleteDataError');
+  const successEl = document.getElementById('deleteDataSuccess');
+  const statsEl = document.getElementById('deleteDataStats');
+  errorEl.classList.remove('visible');
+  successEl.style.display = 'none';
+  deleteBtn.disabled = true;
+  deleteBtn.textContent = 'Deleting...';
+
+  try {
+    await Store.adminDeleteAllData();
+    statsEl.textContent = '';
+    successEl.style.display = 'block';
+    loadBtn.disabled = false;
+    deleteBtn.textContent = 'Delete All Data';
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.add('visible');
+    deleteBtn.disabled = false;
+    deleteBtn.textContent = 'Delete All Data';
   }
 });
 
